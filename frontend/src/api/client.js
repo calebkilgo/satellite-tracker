@@ -5,3 +5,9 @@ export async function fetchISS() {
   if (!res.ok) throw new Error(`Backend error: ${res.status}`)
   return res.json()
 }
+
+export async function fetchISSTLE() {
+  const res = await fetch(`${API_BASE}/tle/iss`)
+  if (!res.ok) throw new Error(`Backend error: ${res.status}`)
+  return res.json()
+}

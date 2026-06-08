@@ -34,3 +34,11 @@ def iss_position():
         "lon": subpoint.longitude.degrees,
         "alt": subpoint.elevation.km
     }
+
+@app.get("/tle/iss")
+def iss_tle():
+    return {
+        "name": ISS_NAME,
+        "line1": ISS_LINE1,
+        "line2": ISS_LINE2
+    }

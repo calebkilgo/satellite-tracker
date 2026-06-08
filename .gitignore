@@ -3,3 +3,5 @@ __pycache__/
 .env
 public/cesium/
 node_modules/.vite/
+venv/
+.vscode/

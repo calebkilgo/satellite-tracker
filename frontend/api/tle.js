@@ -7,12 +7,17 @@ export default async function handler(req, res) {
   }
 
   const url = `https://celestrak.org/NORAD/elements/gp.php?GROUP=${group}&FORMAT=TLE`
-  const upstream = await fetch(url, {
-    headers: { 'User-Agent': 'satellite-tracker/1.0 (portfolio project)' },
-  })
+  let upstream
+  try {
+    upstream = await fetch(url, {
+      headers: { 'User-Agent': 'satellite-tracker/1.0 (portfolio project)' },
+    })
+  } catch (err) {
+    return res.status(502).json({ error: 'CelesTrak unreachable' })
+  }
 
   if (!upstream.ok) {
-    return res.status(upstream.status).end()
+    return res.status(upstream.status).json({ error: `CelesTrak: ${upstream.status}` })
   }
 
   const text = await upstream.text()
@@ -23,8 +28,7 @@ export default async function handler(req, res) {
     sats.push({ name: lines[i].trim(), line1: lines[i + 1], line2: lines[i + 2] })
   }
 
-  // Cache at Vercel's CDN edge for 1 hour; serve stale for 2 hours while revalidating.
-  // This cuts CelesTrak requests to ~24/day per group regardless of visitor count.
+  // Cache at Vercel's edge for 1 hour; serve stale for 2 hours while revalidating
   res.setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate=7200')
   return res.json(sats)
 }

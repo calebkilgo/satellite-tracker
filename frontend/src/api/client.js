@@ -11,7 +11,7 @@ export async function fetchGroupTLEs(group) {
     // Production: use the Vercel serverless proxy at /api/tle/[group].
     // CelesTrak 403s browser requests from production domains; the proxy
     // makes the fetch server-side with a proper User-Agent header.
-    const res = await fetch(`/api/tle/${group}`)
+    const res = await fetch(`/api/tle?group=${group}`)
     if (!res.ok) throw new Error(`API error: ${res.status}`)
     return res.json()
   }

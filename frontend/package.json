@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "prebuild": "node copy-cesium.js",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"

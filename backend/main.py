@@ -3,8 +3,11 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from skyfield.api import load, EarthSatellite
 import httpx
+import os
 
 CELESTRAK_ISS_URL = "https://celestrak.org/NORAD/elements/gp.php?CATNR=25544&FORMAT=TLE"
+
+allowed = [o.strip() for o in os.environ.get("ALLOWED_ORIGINS", "http://localhost:5173").split(",")]
 
 # Groups the frontend is allowed to request.
 AVAILABLE_GROUPS = ["stations", "gps-ops", "starlink", "weather", "science"]
@@ -73,7 +76,7 @@ app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=allowed,
     allow_methods=["*"],
     allow_headers=["*"],
 )

@@ -12,6 +12,9 @@ allowed = [o.strip() for o in os.environ.get("ALLOWED_ORIGINS", "http://localhos
 # Groups the frontend is allowed to request.
 AVAILABLE_GROUPS = ["stations", "gps-ops", "starlink", "weather", "science"]
 
+# CelesTrak can be slow or reject requests without a User-Agent from cloud IPs.
+HEADERS = {"User-Agent": "satellite-tracker/1.0 (portfolio project)"}
+
 FALLBACK_TLE = {
     "name": "ISS (ZARYA)",
     "line1": "1 25544U 98067A   26154.96745432  .00008451  00000+0  15807-3 0  9999",
@@ -31,7 +34,7 @@ def celestrak_group_url(group):
 def fetch_iss_tle():
     """Fetch the current ISS TLE from CelesTrak, falling back if it fails."""
     try:
-        resp = httpx.get(CELESTRAK_ISS_URL, timeout=10.0)
+        resp = httpx.get(CELESTRAK_ISS_URL, timeout=30.0, headers=HEADERS)
         resp.raise_for_status()
         lines = [line.strip() for line in resp.text.strip().splitlines()]
         _tle_cache["name"] = lines[0]
@@ -43,11 +46,11 @@ def fetch_iss_tle():
 
 
 def fetch_group(group):
-    """Fetch and parse a named CelesTrak group, caching the result."""
+    """Fetch and parse a named CelesTrak group, caching only on success."""
     if group not in AVAILABLE_GROUPS:
         return []
     try:
-        resp = httpx.get(celestrak_group_url(group), timeout=15.0)
+        resp = httpx.get(celestrak_group_url(group), timeout=30.0, headers=HEADERS)
         resp.raise_for_status()
         lines = [line.rstrip() for line in resp.text.strip().splitlines()]
         sats = []
@@ -58,17 +61,17 @@ def fetch_group(group):
                 "line1": lines[i + 1],
                 "line2": lines[i + 2],
             })
-        _group_cache[group] = sats
+        _group_cache[group] = sats   # only cache on success
     except Exception as e:
         print(f"Group '{group}' fetch failed: {e}")
-        _group_cache.setdefault(group, [])
-    return _group_cache[group]
+        # Do not cache empty on failure, so the next request retries.
+    return _group_cache.get(group, [])
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    fetch_iss_tle()
-    fetch_group("stations")   # pre-warm the small default group only
+    # Fetch lazily on first request instead of at startup, when the network
+    # is coldest and most likely to time out.
     yield
 
 
@@ -94,11 +97,13 @@ def list_groups():
 
 @app.get("/tle/group/{group}")
 def get_group(group: str):
-    if group not in _group_cache:
+    # Refetch if the group is missing OR cached empty (a previous failure).
+    if not _group_cache.get(group):
         fetch_group(group)
     return _group_cache.get(group, [])
 
 
 @app.get("/tle/iss")
 def iss_tle():
-    return _tle_cache
+    # Fetch on first access if still on the fallback.
+    return fetch_iss_tle()

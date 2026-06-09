@@ -1,6 +1,5 @@
 const SANS = "'Inter', 'Helvetica Neue', Arial, sans-serif"
 
-// Turn a Cesium Color into a CSS rgb string for the swatch.
 function cssColor(c) {
   if (!c) return '#fff'
   return `rgb(${Math.round(c.red * 255)}, ${Math.round(c.green * 255)}, ${Math.round(c.blue * 255)})`

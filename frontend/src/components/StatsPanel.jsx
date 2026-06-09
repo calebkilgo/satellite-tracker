@@ -3,12 +3,12 @@ import { useState, useRef, useEffect } from 'react'
 const SANS = "'Inter', 'Helvetica Neue', Arial, sans-serif"
 const ACCENT = '#5b9dd9'
 
-function StatsPanel({ stats, onClose, onFocus }) {
+function StatsPanel({ stats, onClose, onFocus, showGroundTrack, onToggleGroundTrack }) {
   const [pos, setPos] = useState({ x: 24, y: 320 })
   const drag = useRef({ active: false, offsetX: 0, offsetY: 0 })
 
   function onMouseDown(e) {
-    if (e.target.closest('button')) return
+    if (e.target.closest('button') || e.target.closest('[data-toggle]')) return
     drag.current = { active: true, offsetX: e.clientX - pos.x, offsetY: e.clientY - pos.y }
     e.preventDefault()
   }
@@ -56,22 +56,22 @@ function StatsPanel({ stats, onClose, onFocus }) {
             onClick={onFocus}
             title="Track with camera"
             style={{
-                background: 'none',
-                border: '1px solid rgba(255,255,255,0.25)',
-                borderRadius: 2,
-                color: '#fff',
-                cursor: 'pointer',
-                padding: '4px 6px',
-                lineHeight: 0,
-                display: 'flex',
-                alignItems: 'center',
+              background: 'none',
+              border: '1px solid rgba(255,255,255,0.25)',
+              borderRadius: 2,
+              color: '#fff',
+              cursor: 'pointer',
+              padding: '4px 6px',
+              lineHeight: 0,
+              display: 'flex',
+              alignItems: 'center',
             }}
-            >
+          >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" strokeWidth="2"
-                strokeLinecap="round" strokeLinejoin="round">
-                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
-                <circle cx="12" cy="13" r="4" />
+              stroke="currentColor" strokeWidth="2"
+              strokeLinecap="round" strokeLinejoin="round">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+              <circle cx="12" cy="13" r="4" />
             </svg>
           </button>
           <span style={{
@@ -107,6 +107,48 @@ function StatsPanel({ stats, onClose, onFocus }) {
         <Row label="Longitude" value={stats.lon.toFixed(3)} unit="°" />
         <Row label="Altitude" value={stats.alt.toFixed(1)} unit="km" />
         <Row label="Velocity" value={stats.speed.toFixed(2)} unit="km/s" />
+
+        <div
+          data-toggle="true"
+          onClick={onToggleGroundTrack}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            paddingTop: 10,
+            marginTop: 4,
+            borderTop: '1px solid rgba(255,255,255,0.06)',
+            cursor: 'pointer',
+          }}
+        >
+          <span style={{
+            fontSize: 10,
+            fontWeight: 500,
+            letterSpacing: 1.5,
+            textTransform: 'uppercase',
+            color: 'rgba(255,255,255,0.5)',
+          }}>
+            Orbital path
+          </span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <svg width="14" height="10" viewBox="0 0 14 10" style={{ opacity: showGroundTrack ? 1 : 0.35 }}>
+              <path
+                d="M 0 5 Q 3.5 0 7 5 Q 10.5 10 14 5"
+                stroke={ACCENT}
+                strokeWidth="1.5"
+                fill="none"
+                strokeLinecap="round"
+              />
+            </svg>
+            <span style={{
+              fontSize: 11,
+              fontWeight: 500,
+              color: showGroundTrack ? ACCENT : 'rgba(255,255,255,0.3)',
+            }}>
+              {showGroundTrack ? 'ON' : 'OFF'}
+            </span>
+          </span>
+        </div>
       </div>
     </div>
   )

@@ -1,10 +1,9 @@
 const CELESTRAK_BASE = 'https://celestrak.org/NORAD/elements/gp.php'
 
-// The groups your app offers.
-const GROUPS = ['stations', 'gps-ops', 'weather', 'science']
+const GROUPS = ['stations', 'gps-ops', 'starlink', 'weather', 'science']
 
 export async function fetchGroups() {
-  return GROUPS   // no network call needed; it's a fixed list
+  return GROUPS
 }
 
 export async function fetchGroupTLEs(group) {
@@ -15,7 +14,6 @@ export async function fetchGroupTLEs(group) {
   return parseTLE(text)
 }
 
-// Parse CelesTrak's 3-line-per-satellite text into objects.
 function parseTLE(text) {
   const lines = text.trim().split('\n').map((l) => l.trimEnd())
   const sats = []

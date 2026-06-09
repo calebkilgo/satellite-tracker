@@ -191,6 +191,33 @@ Starlink is available via the group selector but is off by default — loading 5
 
 ---
 
+## Deployment
+
+### Vercel (frontend)
+
+The WASM files (`sgp4.js` / `sgp4.wasm`) are committed to the repo. Vite copies everything in `public/` to `dist/` verbatim, so no Emscripten install is needed on Vercel.
+
+1. Import the repo in Vercel.
+2. In **Project Settings → General**, set **Root Directory** to `frontend`.
+3. Vercel auto-detects Vite — leave build command and output dir at their defaults.
+4. Under **Environment Variables**, add:
+   ```
+   VITE_CESIUM_ION_TOKEN = <your token>
+   ```
+5. Deploy. The globe, WASM propagator, and Cesium assets all ship as static files.
+
+If you ever update the C++ source, rebuild locally (`cpp/build.ps1` or `cpp/build.sh`) and commit the new `sgp4.js` / `sgp4.wasm` — Vercel picks them up on the next push.
+
+### Render (backend)
+
+The repo includes a `render.yaml` at the root. Render will read it automatically when you connect the repo.
+
+Set the `ALLOWED_ORIGINS` environment variable in the Render dashboard to your Vercel deployment URL (e.g. `https://satellite-tracker.vercel.app`).
+
+> **Note:** The frontend currently fetches TLEs directly from CelesTrak — the backend is not in the critical path. It exists as a proxy fallback if CelesTrak starts rejecting browser requests.
+
+---
+
 ## Known limitations
 
 - **Deep-space satellites** (orbital period ≥ 225 min) use secular-only perturbations. Full SDP4 lunar/solar resonance terms are not implemented — positions will drift over multi-day propagations but are accurate enough for real-time display.

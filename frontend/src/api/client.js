@@ -1,7 +1,7 @@
 const CELESTRAK_BASE = 'https://celestrak.org/NORAD/elements/gp.php'
 
 // The groups your app offers.
-const GROUPS = ['stations', 'gps-ops', 'starlink', 'weather', 'science']
+const GROUPS = ['stations', 'gps-ops', 'weather', 'science']
 
 export async function fetchGroups() {
   return GROUPS   // no network call needed; it's a fixed list

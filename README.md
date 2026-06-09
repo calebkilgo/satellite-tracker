@@ -2,7 +2,9 @@
 
 Real-time 3D satellite constellation tracker running on a CesiumJS globe. Orbital positions are computed by a custom SGP4 propagation engine written in C++ and compiled to WebAssembly — no satellite.js, no server-side propagation.
 
-![Globe with satellite constellation](docs/screenshot.png)
+![Globe with satellite constellation](docs/ST1.png)
+
+![Globe with satellite constellation](docs/ST2.png)
 
 ---
 

@@ -11,5 +11,6 @@ venv/
 .DS_Store
 *.log
 *.local
+.claude/
 # WASM build output — committed so Vercel can serve them without an Emscripten install step.
 # Rebuild locally with cpp/build.ps1 (Windows) or cpp/build.sh (Mac/Linux) when cpp/ changes.
